@@ -6,6 +6,7 @@ import model.Sessions;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 public class csvWrite {
 
@@ -33,6 +34,20 @@ public class csvWrite {
                     String.valueOf(session.isStatus())
             };
             writer.writeNext(record);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void rewriteSessions(List<Sessions> sessions) {
+        try (CSVWriter writer = new CSVWriter(new FileWriter(SESSIONS_FILE))) {
+            for (Sessions s : sessions) {
+                String[] record = {
+                        s.getCourseName(),
+                        s.getCourseCode(),
+                        String.valueOf(s.isStatus())
+                };
+                writer.writeNext(record);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
