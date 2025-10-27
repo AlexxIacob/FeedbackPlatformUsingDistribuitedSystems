@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestionare sesiune</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e9ecef;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: start;
+            height: 100vh;
+            padding-top: 60px;
+        }
+        #container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 400px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 20px;
+            border-radius: 8px;
+            border: none;
+            background: #dc3545;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #c82333;
+        }
+        #stats {
+            margin-top: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            display: none;
+        }
+        pre {
+            text-align: left;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<div id="container">
+    <h2>Sesiune activă</h2>
+    <p><strong>Cod curs:</strong> <span id="code"></span></p>
+    <button id="stopBtn">Oprește sesiunea</button>
+
+    <div id="stats">
+        <h3>Statistici feedback</h3>
+        <pre id="statsContent"></pre>
+    </div>
+</div>
+
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const courseCode = urlParams.get("courseCode");
+    document.getElementById("code").innerText = courseCode;
+
+    document.getElementById("stopBtn").addEventListener("click", async function() {
+
+        const stopForm = new URLSearchParams({
+            action: "stopSession",
+            courseCode: courseCode
+        });
+
+        const stopResponse = await fetch("gateway", {
+            method: "POST",
+            body: stopForm
+        });
+
+        const stopText = await stopResponse.text();
+        console.log("Stop response:", stopText);
+
+
+        const statsResponse = await fetch(`gateway?action=viewStats&courseCode=${courseCode}`);
+        const statsText = await statsResponse.text();
+
+        document.getElementById("stats").style.display = "block";
+        document.getElementById("statsContent").innerText = statsText;
+    });
+</script>
+
+</body>
+</html>

@@ -1,16 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
                              https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
-         version="5.0">
+         version="5.0"
+         metadata-complete="true">
 
     <servlet>
-        <servlet-name>Main</servlet-name>
-        <servlet-class>org.example.Main</servlet-class>
+        <servlet-name>SessionsServlet</servlet-name>
+        <servlet-class>servlets.SessionsServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>Main</servlet-name>
-        <url-pattern>/jetty</url-pattern>
+        <servlet-name>SessionsServlet</servlet-name>
+        <url-pattern>/SessionsServlet</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>FeedbackServlet</servlet-name>
+        <servlet-class>servlets.FeedbackServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>FeedbackServlet</servlet-name>
+        <url-pattern>/FeedbackServlet</url-pattern>
+    </servlet-mapping>
+
 </web-app>

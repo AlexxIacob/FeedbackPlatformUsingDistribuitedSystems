@@ -11,46 +11,50 @@ import java.util.UUID;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 
-@WebServlet("SessionsServlet")
+@WebServlet("/SessionsServlet")
 public class SessionsServlet extends HttpServlet {
 
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String courseName = req.getParameter("courseName");
+    protected synchronized void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
 
-        String courseCode = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-
-        Sessions sessions = new Sessions(courseName, courseCode, true);
-        csvWrite.writeSession(sessions);
-
+        String action = req.getParameter("action");
         resp.setContentType("text/plain");
-        resp.getWriter().println("Sessions saved successfully");
-    }
 
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if ("createSession".equals(action)) {
+            String courseName = req.getParameter("courseName");
+            String courseCode = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
 
-        String courseCode = req.getParameter("courseCode");
+            Sessions session = new Sessions(courseName, courseCode, true);
+            csvWrite.writeSession(session);
 
-        List<Sessions> sessions = csvRead.readSessions();
-        boolean found = false;
+            resp.getWriter().println("Sessions saved successfully");
+            resp.getWriter().println("Course code: " + courseCode);
 
-        for (Sessions s : sessions) {
-            if (s.getCourseCode().equals(courseCode)) {
-                s.setStatus(false);
-                found = true;
-                break;
+        } else if ("stopSession".equals(action)) {
+            String courseCode = req.getParameter("courseCode");
+
+            synchronized (this) {
+                List<Sessions> sessions = csvRead.readSessions();
+                boolean found = false;
+
+                for (Sessions s : sessions) {
+                    if (s.getCourseCode().equalsIgnoreCase(courseCode) && s.isStatus()) {
+                        s.setStatus(false);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found) {
+                    csvWrite.rewriteSessions(sessions);
+                    resp.getWriter().println("Session stopped successfully.");
+                } else {
+                    resp.getWriter().println("Invalid course code or session already closed.");
+                }
             }
+        } else {
+            resp.getWriter().println("Invalid action.");
         }
-
-        if (found){
-            csvWrite.rewriteSessions(sessions);
-            resp.getWriter().println("Status changed successfully");
-        }
-        else {
-            resp.getWriter().println("Code invalid");
-        }
-
     }
-
-
 }
