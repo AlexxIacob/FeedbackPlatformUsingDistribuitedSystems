@@ -1,0 +1,97 @@
+    <!DOCTYPE html>
+    <html lang="ro">
+    <head>
+        <meta charset="UTF-8">
+        <title>Trimite feedback</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                background: #eef1f4;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+            }
+            form {
+                background: #fff;
+                padding: 30px;
+                border-radius: 12px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            }
+            input, textarea, button {
+                width: 250px;
+                padding: 10px;
+                margin: 8px;
+                border-radius: 8px;
+                border: 1px solid #ccc;
+            }
+            button {
+                background: #28a745;
+                color: white;
+                cursor: pointer;
+                border: none;
+            }
+            button:hover {
+                background: #1e7e34;
+            }
+            #messageBox {
+                margin-top: 15px;
+                color: #155724;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+
+    <form id="feedbackForm">
+        <h2>Trimite feedback</h2>
+        <input type="hidden" name="action" value="addFeedback">
+        <label>Cod curs:</label><br>
+        <input type="text" name="courseCode" required><br>
+        <label>Feedback:</label><br>
+        <textarea name="message" rows="4" required></textarea><br>
+        <label>Nota (1-10):</label><br>
+        <input type="number" name="grade" min="1" max="10" required><br>
+        <button type="submit">Trimite</button>
+        <div id="messageBox"></div>
+    </form>
+
+    <script>
+        document.querySelector("form").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const response = await fetch("gateway", {
+                method: "POST",
+                body: new URLSearchParams(formData)
+            });
+
+            const text = (await response.text()).trim();
+
+            const msgBox = document.getElementById("messageBox");
+            msgBox.style.marginTop = "15px";
+            msgBox.style.padding = "10px";
+            msgBox.style.borderRadius = "8px";
+            msgBox.style.fontWeight = "bold";
+
+            if (text.includes("Feedback successfully written")) {
+                msgBox.textContent = "Formular completat cu succes";
+                msgBox.style.backgroundColor = "#d4edda";
+                msgBox.style.color = "#155724";
+            }
+            else if (text.includes("Session is closed")) {
+                msgBox.textContent = "Sesiunea este inchisa.Nu mai poti trimite formulare.";
+                msgBox.style.backgroundColor = "#f8d7da";
+                msgBox.style.color = "#721c24";
+            }
+            else {
+                msgBox.textContent = "⚠️ " + text;
+                msgBox.style.backgroundColor = "#fff3cd";
+                msgBox.style.color = "#856404";
+            }
+        });
+    </script>
+
+    </body>
+    </html>
