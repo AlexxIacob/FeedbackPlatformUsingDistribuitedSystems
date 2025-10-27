@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Creare sesiune</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        form, .links {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        input, button {
+            padding: 10px;
+            margin: 8px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<form id="createForm">
+    <input type="hidden" name="action" value="createSession">
+    <h2>Creare sesiune feedback</h2>
+    <label>Numele materiei:</label><br>
+    <input type="text" name="courseName" required><br>
+    <button type="submit">Creeaza sesiune</button>
+</form>
+
+<div class="links" style="margin-top: 20px;">
+    <p>Student? Trimite feedback aici:</p>
+    <a href="feedback.html"><button type="button">Mergi la pagina de feedback</button></a>
+</div>
+
+<script>
+    document.getElementById("createForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const response = await fetch("gateway", {
+            method: "POST",
+            body: new URLSearchParams(formData)
+        });
+        const text = await response.text();
+
+
+        const match = text.match(/Course code:\s*([A-Z0-9]{6})/);
+        if (match) {
+            const courseCode = match[1];
+            window.location.href = `manageSession.html?courseCode=${courseCode}`;
+        } else {
+            alert("Eroare: " + text);
+        }
+    });
+</script>
+
+</body>
+</html>
